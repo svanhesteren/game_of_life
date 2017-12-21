@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .grid-container {
+        display: grid;
+        /*border: 0.5px solid grey;*/
+        grid-template-columns: repeat(100, 1fr);
+        background-color: white;
+        width: 75%;
+        /*position: static;*/
+        /*padding-left: 12%;*/
+        /*padding-right: 12%;*/
+        /*align-items: center;*/
+        /*height: 100%;*/
+
+      }
+      .dead {
+        background-color: white;
+      }
+      .alive {
+        background-color: black;
+      }
+
+      .grid-item {
+        border: 0.5px solid grey;
+        width: 100%;
+        /*height: 100%;*/
+        padding-bottom: 100%;
+
+      }
+
+
+    </style>
+    <meta charset="utf-8">
+    <title>
+      Game of Life
+    </title>
+  </head>
+  <body>
+    <h1>Game of Life</h1>
+    <a href="#" onclick="update();draw()">Update</a>
+    <a href="#" onclick="run()">Run</a>
+    <div id="main-container"></div>
+
+    <script>
+      "use strict"
+      var LOG = false;
+      var mainContainer = document.getElementById("main-container");
+
+      var container = document.createElement('div');
+      container.className = "grid-container";
+      mainContainer.appendChild(container);
+
+      // create grid
+      function createGrid(){
+        for (var y = 1;y <= 50;y++){
+          for (var x = 1;x <= 100;x++){
+            var item = document.createElement('div');
+            item.future = null;
+            // item.will_live = false;
+            item.className = "grid-item dead";
+            item.id = `cell-${x}-${y}`;
+            container.appendChild(item);
+          }
+        }
+      }
+      function fillGrid(){
+        for (var i=0;i<10;i++){
+          var randy = Math.floor((Math.random() * 50) + 1);
+          var randx = Math.floor((Math.random() * 100) + 1);
+
+          var selitem = document.getElementById(`cell-${randx}-${randy}`);
+          selitem.className = "grid-item alive";
+
+          var neighs = getNeighbours(selitem);
+          for (var neigh of neighs){
+            if (neigh){
+              neigh.className = "grid-item alive";
+            }
+          }
+        }
+      }
+
+      function getNeighbours(cell){
+        var cellNameItems = cell.id.split("-");
+        var xcoor = parseInt(cellNameItems[1]);
+        var ycoor = parseInt(cellNameItems[2]);
+        return [document.getElementById(`cell-${xcoor}-${ycoor+1}`),
+                document.getElementById(`cell-${xcoor}-${ycoor-1}`),
+                document.getElementById(`cell-${xcoor-1}-${ycoor}`),
+                document.getElementById(`cell-${xcoor+1}-${ycoor}`),
+                document.getElementById(`cell-${xcoor+1}-${ycoor+1}`),
+                document.getElementById(`cell-${xcoor-1}-${ycoor-1}`),
+                document.getElementById(`cell-${xcoor-1}-${ycoor+1}`),
+                document.getElementById(`cell-${xcoor+1}-${ycoor-1}`)
+              ];
+      }
+
+      function getAmountAliveNeighbours(cell){
+        var neighbours = getNeighbours(cell);
+        var aliveAmount = 0;
+        for (var neighbour of neighbours){
+          if (neighbour && neighbour.classList.contains("alive")){
+            aliveAmount++;
+          }
+        }
+        return aliveAmount;
+      }
+
+      function update(){
+        var aliveCells = document.getElementsByClassName("alive");
+        // var aliveCells = document.b
+
+        // console.log(aliveCells);
+        for(var cell of aliveCells ){
+          for (var neighbour of getNeighbours(cell)){
+            if (neighbour) {
+              var amountAlive = getAmountAliveNeighbours(neighbour);
+
+              if (amountAlive <= 1 ){
+                neighbour.future = false;
+                if (LOG){
+                  console.log(`Cell ${neighbour.id} has 1 or fewer neighbours and died.`)
+                }
+              }
+              else if (amountAlive >= 4){
+                neighbour.future = false;
+                if (LOG){
+                  console.log(`Cell ${neighbour.id} has 4 or more neighbours and died.`)
+                }
+              }
+              else if (amountAlive == 3){
+                neighbour.future = true;
+                if (LOG){
+                  console.log(`Cell ${neighbour.id} has 3 or more neighbours and became alive.`)
+                }
+              }
+              else {
+                if (LOG){
+                  console.log(`Cell ${neighbour.id} has 3 or 2 neighbours and stayed alive.`)
+                }
+              }
+            }
+          }
+        }
+
+
+      }
+
+      function draw(){
+        var allCells  = document.getElementsByClassName("grid-item");
+
+        for (var cell of allCells) {
+          if (cell.future == true) {
+            cell.className = "grid-item alive";
+            cell.future = null;
+          }
+          else if (cell.future == false){
+            cell.className = "grid-item dead";
+            cell.future = null;
+          }
+        }
+      }
+
+      function run(){
+        while(true){
+        update();
+        setTimeout(draw, 200);
+        // draw();
+        // window.requestAnimationFrame(run);
+      }
+      }
+
+      createGrid();
+      fillGrid();
+      // while (true){
+      //   update();
+      // }
+
+    </script>
+
+  </body>
+</html>
