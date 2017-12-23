@@ -40,12 +40,14 @@
   <body>
     <h1>Game of Life</h1>
     <a href="#" onclick="update();draw()">Update</a>
-    <a href="#" onclick="run()">Run</a>
+    <a href="#" onclick="toggleRunning(); run()">Run</a>
+    <a href="#" onclick="killAll()">Clear</a>
     <div id="main-container"></div>
 
     <script>
       "use strict"
       var LOG = false;
+      var running = false;
       var mainContainer = document.getElementById("main-container");
 
       var container = document.createElement('div');
@@ -57,16 +59,35 @@
         for (var y = 1;y <= 50;y++){
           for (var x = 1;x <= 100;x++){
             var item = document.createElement('div');
+            // var item = document.createElement('<div onclick="toggleCellState(this)"></div>');
+            item.setAttribute("onclick", "toggleCellState(this)");
             item.future = null;
             // item.will_live = false;
             item.className = "grid-item dead";
             item.id = `cell-${x}-${y}`;
+            // console.log(item);
             container.appendChild(item);
           }
         }
       }
+      function killAll(){
+        for (var cell of document.getElementsByClassName("grid-item")){
+          cell.className = "grid-item dead";
+        }
+      }
+      function toggleCellState(cell){
+        // console.log("hi");
+        if (cell.classList.contains("dead")){
+          cell.className = "grid-item alive";
+        }
+        else{
+          cell.className = "grid-item dead";
+        }
+      }
+
       function fillGrid(){
-        for (var i=0;i<10;i++){
+
+        for (var i=0;i<20;i++){
           var randy = Math.floor((Math.random() * 50) + 1);
           var randx = Math.floor((Math.random() * 100) + 1);
 
@@ -162,14 +183,24 @@
           }
         }
       }
+      function toggleRunning(){
+        if (running){
+          running = false;
+        }
+        else {
+          running = true;
+        }
+      }
 
       function run(){
-        while(true){
-        update();
-        setTimeout(draw, 200);
-        // draw();
-        // window.requestAnimationFrame(run);
-      }
+        // while(true){
+        // setTimeout(draw, 200);
+        if (running){
+          update();
+          draw();
+          window.requestAnimationFrame(run);
+        }
+      // }
       }
 
       createGrid();
